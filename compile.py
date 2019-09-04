@@ -27,8 +27,6 @@ def add_argument():
 
 def compile_file(file_path, filter_set):
     for file in get_py_file(file_path):
-        # name_path = os.path.split(i)[0]
-        # if name_path in {"/home/ywm/Desktop/ManuVision/sirius/app/services", "/home/ywm/Desktop/ManuVision/sirius/app/ops"}:
         file_name = os.path.split(file)[-1]
         abspath = os.path.split(file)[0]
         name = file_name.split(".")[0]
@@ -61,9 +59,6 @@ def main():
 
 
 if __name__ == '__main__':
-    # file_path = "/home/ywm/Desktop/ManuVision/sirius"
-    # filter_set = {"uwsgi.py", "uwsgi_entry.py"}
-    # main(file_path, filter_set)
     main()
 
 
