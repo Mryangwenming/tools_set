@@ -1,5 +1,6 @@
 # tools_set
-include some scripts
+记录Python的一些技巧及方法.
+
 用Python通过网络快速共享文件.
   - 进入到要共享文件的目录下,运行下面的命令
   - python -m http.server
