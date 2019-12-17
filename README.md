@@ -11,3 +11,5 @@
   - list = [[1, 2], [3, 4], [5, 6]]
   - list(itertools.chain.from_iterable(a_list)) ----> [1, 2, 3, 4, 5, 6]
   - list(itertools.chain(*a_list)) ----> [1, 2, 3, 4, 5, 6] 
+
+添加脚本的执行参数的话,可以click模块, 它为命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现.
