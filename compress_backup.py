@@ -1,10 +1,15 @@
-import time
-import os
-import re
 import datetime
+import glob
+import logging
+import os
+import time
 import zipfile
 
-r = re.compile(".+(.jpeg|.jpg|.png)$")
+logging.basicConfig(filename=os.path.join(os.getcwd(), 'backup.log'),
+                    filemode='a',
+                    level=logging.INFO,
+                    format='%(asctime)s  %(filename)s : %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
 
 def get_zip(files, zip_name):
@@ -16,7 +21,10 @@ def get_zip(files, zip_name):
     '''
     zp = zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED)
     for file in files:
-        zp.write(file)
+        _, filename = os.path.split(file)
+        zp.write(file, filename)
+        logging.info("{} ADD {}".format(zip_name, file))
+        os.remove(file)
     zp.close()
 
 
@@ -48,13 +56,11 @@ def verify(file_path):
     :param file_path:
     :return:
     '''
-    for file_name in os.listdir(file_path):
-        result = r.search(file_name)
-        if result is not None:
-            yield os.path.join(file_path, result.group())
+    r = "{}/*[.jpeg|.jpg|.png]".format(file_path)
+    return glob.iglob(r)
 
 
-def compress_backup(file_path, start_date, end_date=None):
+def interval_backup(file_path, start_date, end_date=None):
     '''
     按照某个时间段, 根据指定路径压缩图片
     :param file_path: 图片所在路径
@@ -65,7 +71,8 @@ def compress_backup(file_path, start_date, end_date=None):
     zip_list = []
     if not end_date:
         end_date = timestamp_to_time(time.time())
-    zip_name = os.path.join(os.curdir, start_date + "&" + end_date + ".zip")
+    # zip_name = os.path.join(os.curdir, start_date + "&" + end_date + ".zip")
+    zip_name = os.path.join(file_path, start_date + "&" + end_date + ".zip")
     for path in verify(file_path):
         create_time = os.path.getmtime(path.encode("utf-8"))
         s_year, s_month, s_date = [int(i) for i in start_date.split("-")]
@@ -78,6 +85,28 @@ def compress_backup(file_path, start_date, end_date=None):
     print("压缩完成")
 
 
+def period_backup(file_path, interval):
+    '''
+    按照间隔周期进行备份图片
+    :param file_path: 图片所在路径
+    :param interval: 间隔周期,以天为单位
+    :return:
+    '''
+    zip_list = []
+    now_time = timestamp_to_time(time.time())
+    for path in verify(file_path):
+        create_time = timestamp_to_time(os.path.getmtime(path.encode("utf-8")))
+        c_year, c_month, c_day = [int(i) for i in create_time.split("-")]
+        n_year, n_month, n_day = [int(i) for i in now_time.split("-")]
+        if (datetime.datetime(n_year, n_month, n_day) - datetime.datetime(c_year, c_month, c_day)).days <= interval:
+            zip_list.append(path)
+    zip_name = os.path.join(file_path, now_time + ".zip")
+    get_zip(zip_list, zip_name)
+    print("压缩完成")
+
+
 if __name__ == '__main__':
-    # compress_backup("/home/ywm/Desktop/demo/photo", "2019-09-23", "2019-10-09")
-    compress_backup("/home/ywm/Desktop/demo/photo", "2019-09-23")
+    # interval_backup("/home/ywm/Desktop/demo/photo", "2019-09-23", "2019-10-09")
+    # interval_backup("/home/ywm/Desktop/demo/photo", "2019-05-23")
+    period_backup("/home/ywm/Desktop/demo/photo", 30)
+
