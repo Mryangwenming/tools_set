@@ -2,7 +2,7 @@ import pymysql
 import time
 from threading import Thread, Event
 
-conn = pymysql.connect(host="123.56.252.172", user="ywm", password="ywm5842154", database="student")
+conn = pymysql.connect(host="******", user="***", password="********", database="student")
 
 INSERT_EVENT = Event()
 
